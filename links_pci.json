@@ -1,0 +1,23 @@
+[
+    {
+        "cargo": "Analista",
+        "links": [
+          "https://www.pciconcursos.com.br/cargos/analista-de-tecnologia-da-informacao",
+          "https://www.pciconcursos.com.br/cargos/analista-de-sistemas"
+        ]
+    },
+    {
+        "cargo": "Professor",
+        "links": [
+            "https://www.pciconcursos.com.br/cargos/professor-de-informatica",
+            "https://www.pciconcursos.com.br/cargos/professor-substituto-informatica"
+        ]
+    },
+    {
+        "cargo": "Técnico",
+        "links": [
+            "https://www.pciconcursos.com.br/cargos/tecnico-de-informatica",
+            "https://www.pciconcursos.com.br/cargos/tecnico-em-informatica"
+        ]
+    }
+]
