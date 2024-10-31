@@ -5,11 +5,13 @@ from glob import glob
 from md2pdf.core import md2pdf
 from collections import Counter
 from datetime import datetime
+from time import perf_counter
 
 arquivo_dados = "links_pci.json"
 titulos_cargos = set()
 nome_arquivo_pdf = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.pdf"
 nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.md"
+folha_estilos = "style.css"
 
 def scrapy_link(cargo,link):
     doc_html = requests.get(link).content
@@ -71,9 +73,10 @@ def escrever_links_mais_cargo(links_duplicados):
         escrever_markdown("\n \n")
 
 def escrever_relatorio_pdf():
-    md2pdf(pdf_file_path=nome_arquivo_pdf, md_file_path=nome_arquivo_md)
+    md2pdf(pdf_file_path=nome_arquivo_pdf, md_file_path=nome_arquivo_md, css_file_path=folha_estilos)
 
 if __name__ == '__main__':
+    tempo_inicio = perf_counter()
     # Lendo os dados iniciais sobre cargos e links
     with open(arquivo_dados,"r") as f:
         links_concursos = json.load(f)
@@ -81,9 +84,16 @@ if __name__ == '__main__':
     dados_concursos = extrair_dados(links_concursos)
     # Separando duplicatas
     links_duplicados = separar_links_duplicados(dados_concursos)
+    # Escrevendo cabeçalho
+    escrever_markdown(f"# Relatório de concursos de TI {datetime.now().strftime('%d-%m-%y')}")
+    escrever_markdown("\n \n")
+    escrever_markdown("\n \n")
     # Escrevendo maior parte dos links (relatório md)
     escrever_links_unicos(dados_concursos,links_duplicados)
     # Escrevendo links que estavam duplicados (relatório md)
     escrever_links_mais_cargo(links_duplicados)
     # Escrevendo o relatório em pdf
     escrever_relatorio_pdf()
+    # Desempenho do script
+    tempo_fim = perf_counter()
+    print(f"O script rodou em {tempo_fim - tempo_inicio:.2f} segundos")
