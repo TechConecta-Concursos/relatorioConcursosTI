@@ -75,6 +75,11 @@ def escrever_links_mais_cargo(links_duplicados):
 def escrever_relatorio_pdf():
     md2pdf(pdf_file_path=nome_arquivo_pdf, md_file_path=nome_arquivo_md, css_file_path=folha_estilos)
 
+def escrever_cabecalho():
+    escrever_markdown(f"# Relatório de concursos de TI {datetime.now().strftime('%d-%m-%y')}")
+    escrever_markdown("\n \n")
+    escrever_markdown("\n \n")
+
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
     # Lendo os dados iniciais sobre cargos e links
@@ -85,9 +90,7 @@ if __name__ == '__main__':
     # Separando duplicatas
     links_duplicados = separar_links_duplicados(dados_concursos)
     # Escrevendo cabeçalho
-    escrever_markdown(f"# Relatório de concursos de TI {datetime.now().strftime('%d-%m-%y')}")
-    escrever_markdown("\n \n")
-    escrever_markdown("\n \n")
+    escrever_cabecalho()
     # Escrevendo maior parte dos links (relatório md)
     escrever_links_unicos(dados_concursos,links_duplicados)
     # Escrevendo links que estavam duplicados (relatório md)
