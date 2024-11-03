@@ -14,8 +14,8 @@ titulos_cargos = set()
 nome_arquivo_pdf = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.pdf"
 nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.md"
 folha_estilos = "style.css"
-regioes = []
-contador_regioes = Counter()
+estados = []
+contador_estados = Counter()
 
 def scrapy_link(cargo,link):
     doc_html = requests.get(link).content
@@ -84,7 +84,7 @@ def escrever_cabecalho():
     escrever_markdown("\n \n")
     escrever_markdown("\n \n")
 
-def separar_regioes(dados_concursos,info_estados,links_duplicados):
+def separar_estados(dados_concursos,info_estados,links_duplicados):
     # https://gist.github.com/AndersonFirmino/afcd94eaaabc0bf321963801eee8d143
     siglas_estados = info_estados.keys()
     for registro in dados_concursos:
@@ -94,29 +94,29 @@ def separar_regioes(dados_concursos,info_estados,links_duplicados):
             if combinacao_concurso_link not in links_duplicados:
                 for match in matches:
                     if match in siglas_estados:
-                        regioes.append(info_estados[match])
+                        estados.append(info_estados[match])
     for link in links_duplicados:
         matches = re.findall(r'[A-Z]{2}',link)
         for match in matches:
             if match in siglas_estados:
-                regioes.append(info_estados[match])
+                estados.append(info_estados[match])
 
-def escrever_estatistica_regiao(contador_regioes):
-    contador_regioes_sorted = sorted(contador_regioes.items(), key=lambda regiao:regiao[0])
-    contador_regioes_sorted = dict(contador_regioes_sorted)
-    for regiao,freq in contador_regioes_sorted.items():
+def escrever_estatistica_estado(contador_estados):
+    contador_estados_sorted = sorted(contador_estados.items(), key=lambda estado:estado[0])
+    contador_estados_sorted = dict(contador_estados_sorted)
+    for regiao,freq in contador_estados_sorted.items():
         escrever_markdown(f"{regiao} - {freq} concursos")
         escrever_markdown("\n \n")
 
-def escrever_estatisticas(contador_regioes,total_concursos):
+def escrever_estatisticas(contador_estados,total_concursos):
     escrever_markdown("## Estatísticas")
     escrever_markdown("\n \n")
     escrever_markdown("\n \n")
     escrever_markdown(f"Total de concursos disponíveis: {total_concursos}")
     escrever_markdown("\n \n")
-    escrever_markdown("## Concursos por região")
+    escrever_markdown("## Concursos por estado")
     escrever_markdown("\n \n")
-    escrever_estatistica_regiao(contador_regioes)
+    escrever_estatistica_estado(contador_estados)
 
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
@@ -136,12 +136,12 @@ if __name__ == '__main__':
     escrever_links_unicos(dados_concursos,links_duplicados)
     # Escrevendo links que estavam duplicados (relatório md)
     escrever_links_mais_cargo(links_duplicados)
-    # Separando regiões dos concursos
-    separar_regioes(dados_concursos,info_estados,links_duplicados)
-    contador_regioes = Counter(regioes)
+    # Separando estados dos concursos
+    separar_estados(dados_concursos,info_estados,links_duplicados)
+    contador_estados = Counter(estados)
     # Escrevendo estatísticas
-    total_concursos = sum(contador_regioes.values())
-    escrever_estatisticas(contador_regioes,total_concursos)
+    total_concursos = sum(contador_estados.values())
+    escrever_estatisticas(contador_estados,total_concursos)
     # Escrevendo o relatório em pdf
     escrever_relatorio_pdf()
     # Desempenho do script
