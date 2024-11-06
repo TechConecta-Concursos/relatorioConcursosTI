@@ -15,6 +15,7 @@ nome_arquivo_pdf = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')
 nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.md"
 folha_estilos = "style.css"
 estados = []
+regioes = []
 contador_estados = Counter()
 
 def scrapy_link(cargo,link):
@@ -37,6 +38,13 @@ def escrever_markdown(conteudo):
     else:
         with open(nome_arquivo_md, "w") as f:
             f.write(conteudo)
+
+def escrever_dupla_quebra():
+    escrever_markdown("\n \n")
+    escrever_markdown("\n \n")
+
+def escrever_unica_quebra():
+     escrever_markdown("\n \n")
 
 def extrair_dados(links_concursos):
     dados_concursos = []
@@ -62,29 +70,28 @@ def escrever_links_unicos(dados_concursos, links_duplicados):
             combinacao_concurso_link = f"{dic['concurso']},;{dic['link']}"
             if dic["cargo"] not in titulos_cargos:
                 escrever_markdown(f"## {dic['cargo']}")
-                escrever_markdown("\n \n")
+                escrever_unica_quebra()
             if combinacao_concurso_link not in links_duplicados:
                 escrever_markdown(f"[{dic['concurso']}]({dic['link']})")
-                escrever_markdown("\n \n")
+                escrever_unica_quebra()
             titulos_cargos.add(dic["cargo"])
 
 def escrever_links_mais_cargo(links_duplicados):
     escrever_markdown(f"## Vários cargos")
-    escrever_markdown("\n \n")
+    escrever_unica_quebra()
     for link in links_duplicados:
         split_dados = link.split(",;")
         escrever_markdown(f"[{split_dados[0]}]({split_dados[1]})")
-        escrever_markdown("\n \n")
+        escrever_unica_quebra()
 
 def escrever_relatorio_pdf():
     md2pdf(pdf_file_path=nome_arquivo_pdf, md_file_path=nome_arquivo_md, css_file_path=folha_estilos)
 
 def escrever_cabecalho():
     escrever_markdown(f"# Relatório de concursos de TI {datetime.now().strftime('%d-%m-%y')}")
-    escrever_markdown("\n \n")
-    escrever_markdown("\n \n")
+    escrever_dupla_quebra()
 
-def separar_estados(dados_concursos,info_estados_regioes,links_duplicados):
+def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados):
     # https://servicodados.ibge.gov.br/api/v1/localidades/estados
     siglas_estados = list()
     for info_estado in info_estados_regioes:
@@ -102,6 +109,7 @@ def separar_estados(dados_concursos,info_estados_regioes,links_duplicados):
                             for chave in info_estado:
                                 if info_estado[chave] == match:
                                     estados.append(info_estado["nome"])
+                                    regioes.append(info_estado["regiao"])
     for link in links_duplicados:
         matches = re.findall(r'[A-Z]{2}',link)
         for match in matches:
@@ -110,23 +118,26 @@ def separar_estados(dados_concursos,info_estados_regioes,links_duplicados):
                     for chave in info_estado:
                         if info_estado[chave] == match:
                             estados.append(info_estado["nome"])
+                            regioes.append(info_estado["regiao"])
 
-def escrever_estatistica_estado(contador_estados):
-    contador_estados_sorted = sorted(contador_estados.items(), key=lambda estado:estado[0])
-    contador_estados_sorted = dict(contador_estados_sorted)
-    for regiao,freq in contador_estados_sorted.items():
-        escrever_markdown(f"{regiao} - {freq} concursos")
-        escrever_markdown("\n \n")
+def escrever_estatistica_contador(contador):
+    contador_sorted = sorted(contador.items(), key=lambda item:item[0])
+    contador_sorted = dict(contador_sorted)
+    for chave,freq in contador_sorted.items():
+        escrever_markdown(f"{chave} - {freq} concursos")
+        escrever_unica_quebra()
 
-def escrever_estatisticas(contador_estados,total_concursos):
+def escrever_estatisticas(contador_estados,contador_regioes,total_concursos):
     escrever_markdown("## Estatísticas")
-    escrever_markdown("\n \n")
-    escrever_markdown("\n \n")
+    escrever_dupla_quebra()
     escrever_markdown(f"Total de concursos disponíveis: {total_concursos}")
-    escrever_markdown("\n \n")
+    escrever_unica_quebra()
     escrever_markdown("## Concursos por estado")
-    escrever_markdown("\n \n")
-    escrever_estatistica_estado(contador_estados)
+    escrever_unica_quebra()
+    escrever_estatistica_contador(contador_estados)
+    escrever_markdown("## Concursos por região")
+    escrever_unica_quebra()
+    escrever_estatistica_contador(contador_regioes)
 
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
@@ -146,12 +157,13 @@ if __name__ == '__main__':
     escrever_links_unicos(dados_concursos,links_duplicados)
     # Escrevendo links que estavam duplicados (relatório md)
     escrever_links_mais_cargo(links_duplicados)
-    # Separando estados dos concursos
-    separar_estados(dados_concursos,info_estados_regioes,links_duplicados)
+    # Separando estados e regiões dos concursos
+    separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados)
     contador_estados = Counter(estados)
+    contador_regioes = Counter(regioes)
     # Escrevendo estatísticas
     total_concursos = sum(contador_estados.values())
-    escrever_estatisticas(contador_estados,total_concursos)
+    escrever_estatisticas(contador_estados,contador_regioes,total_concursos)
     # Escrevendo o relatório em pdf
     escrever_relatorio_pdf()
     # Desempenho do script
