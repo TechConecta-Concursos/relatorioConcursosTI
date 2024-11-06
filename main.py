@@ -9,7 +9,7 @@ from time import perf_counter
 import re
 
 arquivo_dados = "links_pci.json"
-arquivo_estados = "estados.json"
+arquivo_estados_regioes = "estados_regioes.json"
 titulos_cargos = set()
 nome_arquivo_pdf = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.pdf"
 nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.md"
@@ -84,9 +84,13 @@ def escrever_cabecalho():
     escrever_markdown("\n \n")
     escrever_markdown("\n \n")
 
-def separar_estados(dados_concursos,info_estados,links_duplicados):
-    # https://gist.github.com/AndersonFirmino/afcd94eaaabc0bf321963801eee8d143
-    siglas_estados = info_estados.keys()
+def separar_estados(dados_concursos,info_estados_regioes,links_duplicados):
+    # https://servicodados.ibge.gov.br/api/v1/localidades/estados
+    siglas_estados = list()
+    for info_estado in info_estados_regioes:
+        for chave in info_estado:
+            if chave == "sigla":
+                siglas_estados.append(info_estado["sigla"])
     for registro in dados_concursos:
         for dic in registro:
             matches = re.findall(r'[A-Z]{2}',dic["concurso"])
@@ -94,12 +98,18 @@ def separar_estados(dados_concursos,info_estados,links_duplicados):
             if combinacao_concurso_link not in links_duplicados:
                 for match in matches:
                     if match in siglas_estados:
-                        estados.append(info_estados[match])
+                        for info_estado in info_estados_regioes:
+                            for chave in info_estado:
+                                if info_estado[chave] == match:
+                                    estados.append(info_estado["nome"])
     for link in links_duplicados:
         matches = re.findall(r'[A-Z]{2}',link)
         for match in matches:
             if match in siglas_estados:
-                estados.append(info_estados[match])
+                for info_estado in info_estados_regioes:
+                    for chave in info_estado:
+                        if info_estado[chave] == match:
+                            estados.append(info_estado["nome"])
 
 def escrever_estatistica_estado(contador_estados):
     contador_estados_sorted = sorted(contador_estados.items(), key=lambda estado:estado[0])
@@ -124,8 +134,8 @@ if __name__ == '__main__':
     with open(arquivo_dados,"r") as f:
         links_concursos = json.load(f)
     # Lendo os dados dos estados
-    with open(arquivo_estados, "r") as f:
-        info_estados = json.load(f)
+    with open(arquivo_estados_regioes, "r") as f:
+        info_estados_regioes = json.load(f)
     # Extraindo os dados
     dados_concursos = extrair_dados(links_concursos)
     # Separando duplicatas
@@ -137,7 +147,7 @@ if __name__ == '__main__':
     # Escrevendo links que estavam duplicados (relatório md)
     escrever_links_mais_cargo(links_duplicados)
     # Separando estados dos concursos
-    separar_estados(dados_concursos,info_estados,links_duplicados)
+    separar_estados(dados_concursos,info_estados_regioes,links_duplicados)
     contador_estados = Counter(estados)
     # Escrevendo estatísticas
     total_concursos = sum(contador_estados.values())
