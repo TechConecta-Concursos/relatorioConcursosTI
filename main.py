@@ -6,7 +6,7 @@ from md2pdf.core import md2pdf
 from collections import Counter
 from datetime import datetime
 from time import perf_counter
-import re
+# import re
 
 arquivo_dados = "links_pci.json"
 arquivo_estados_regioes = "estados_regioes.json"
@@ -100,23 +100,26 @@ def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicado
                 siglas_estados.append(info_estado["sigla"])
     for registro in dados_concursos:
         for dic in registro:
-            matches = re.findall(r'[A-Z]{2}',dic["concurso"])
+            info_concurso_split = dic["concurso"].split("-")
+            info_concurso_split = list(map(lambda info: info.strip(),info_concurso_split))
             combinacao_concurso_link = f"{dic['concurso']},;{dic['link']}"
             if combinacao_concurso_link not in links_duplicados:
-                for match in matches:
-                    if match in siglas_estados:
+                for info in info_concurso_split:
+                    if info in siglas_estados:
                         for info_estado in info_estados_regioes:
                             for chave in info_estado:
-                                if info_estado[chave] == match:
+                                if info_estado[chave] == info:
                                     estados.append(info_estado["nome"])
                                     regioes.append(info_estado["regiao"])
     for link in links_duplicados:
-        matches = re.findall(r'[A-Z]{2}',link)
-        for match in matches:
-            if match in siglas_estados:
+        info_concurso_quebra = link.split(",;")[0]
+        info_concurso_split = info_concurso_quebra.split("-")
+        info_concurso_split = list(map(lambda info: info.strip(),info_concurso_split))
+        for info in info_concurso_split:
+            if info in siglas_estados:
                 for info_estado in info_estados_regioes:
                     for chave in info_estado:
-                        if info_estado[chave] == match:
+                        if info_estado[chave] == info:
                             estados.append(info_estado["nome"])
                             regioes.append(info_estado["regiao"])
 
@@ -169,3 +172,5 @@ if __name__ == '__main__':
     # Desempenho do script
     tempo_fim = perf_counter()
     print(f"O script rodou em {tempo_fim - tempo_inicio:.2f} segundos")
+
+    # Pegar prazo final de inscrição
