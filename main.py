@@ -90,13 +90,15 @@ def escrever_cabecalho():
     escrever_markdown(f"# Relatório de concursos de TI {datetime.now().strftime('%d-%m-%y')}")
     escrever_dupla_quebra()
 
-def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados):
-    # https://servicodados.ibge.gov.br/api/v1/localidades/estados
-    siglas_estados = list()
+def inicializar_siglas_estados(info_estados_regioes):
+    siglas_estados = []
     for info_estado in info_estados_regioes:
         for chave in info_estado:
             if chave == "sigla":
                 siglas_estados.append(info_estado["sigla"])
+    return siglas_estados
+
+def separar_estados_regioes_unicos(dados_concursos,siglas_estados):
     for registro in dados_concursos:
         for dic in registro:
             info_concurso_split = dic["concurso"].split("-")
@@ -110,6 +112,8 @@ def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicado
                                 if info_estado[chave] == info:
                                     estados.append(info_estado["nome"])
                                     regioes.append(info_estado["regiao"])
+
+def separar_estados_regioes_duplicados(links_duplicados,siglas_estados):
     for link in links_duplicados:
         info_concurso_quebra = link.split(",;")[0]
         info_concurso_split = info_concurso_quebra.split("-")
@@ -121,6 +125,12 @@ def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicado
                         if info_estado[chave] == info:
                             estados.append(info_estado["nome"])
                             regioes.append(info_estado["regiao"])
+
+def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados):
+    # https://servicodados.ibge.gov.br/api/v1/localidades/estados
+    siglas_estados = inicializar_siglas_estados(info_estados_regioes)
+    separar_estados_regioes_unicos(dados_concursos,siglas_estados)
+    separar_estados_regioes_duplicados(links_duplicados,siglas_estados)
 
 def escrever_estatistica_contador(contador):
     contador_sorted = sorted(contador.items(), key=lambda item:item[0])
