@@ -6,7 +6,6 @@ from md2pdf.core import md2pdf
 from collections import Counter
 from datetime import datetime
 from time import perf_counter
-# import re
 
 arquivo_dados = "links_pci.json"
 arquivo_estados_regioes = "estados_regioes.json"
