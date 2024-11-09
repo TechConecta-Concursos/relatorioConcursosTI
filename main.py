@@ -76,7 +76,7 @@ def escrever_links_unicos(dados_concursos, links_duplicados):
             titulos_cargos.add(dic["cargo"])
 
 def escrever_links_mais_cargo(links_duplicados):
-    escrever_markdown(f"## Vários cargos")
+    escrever_markdown("## Vários cargos")
     escrever_unica_quebra()
     for link in links_duplicados:
         split_dados = link.split(",;")
@@ -98,7 +98,7 @@ def inicializar_siglas_estados(info_estados_regioes):
                 siglas_estados.append(info_estado["sigla"])
     return siglas_estados
 
-def separar_estados_regioes_unicos(dados_concursos,siglas_estados):
+def separar_estados_regioes_unicos(dados_concursos,siglas_estados,info_estados_regioes,links_duplicados):
     for registro in dados_concursos:
         for dic in registro:
             info_concurso_split = dic["concurso"].split("-")
@@ -113,7 +113,7 @@ def separar_estados_regioes_unicos(dados_concursos,siglas_estados):
                                     estados.append(info_estado["nome"])
                                     regioes.append(info_estado["regiao"])
 
-def separar_estados_regioes_duplicados(links_duplicados,siglas_estados):
+def separar_estados_regioes_duplicados(links_duplicados,siglas_estados,info_estados_regioes):
     for link in links_duplicados:
         info_concurso_quebra = link.split(",;")[0]
         info_concurso_split = info_concurso_quebra.split("-")
@@ -129,8 +129,8 @@ def separar_estados_regioes_duplicados(links_duplicados,siglas_estados):
 def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados):
     # https://servicodados.ibge.gov.br/api/v1/localidades/estados
     siglas_estados = inicializar_siglas_estados(info_estados_regioes)
-    separar_estados_regioes_unicos(dados_concursos,siglas_estados)
-    separar_estados_regioes_duplicados(links_duplicados,siglas_estados)
+    separar_estados_regioes_unicos(dados_concursos,siglas_estados,info_estados_regioes,links_duplicados)
+    separar_estados_regioes_duplicados(links_duplicados,siglas_estados,info_estados_regioes)
 
 def escrever_estatistica_contador(contador):
     contador_sorted = sorted(contador.items(), key=lambda item:item[0])
