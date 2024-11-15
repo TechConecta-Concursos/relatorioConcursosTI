@@ -23,11 +23,12 @@ def scrapy_link(cargo,link):
     vagas_html = soup_html.find_all("ul", class_="link-d")
     dics_concursos = []
     for vaga in vagas_html:
-        if not vaga.li.a.text.isupper():
-            dic = {"cargo": cargo["cargo"], 
-                    "concurso": vaga.li.a.text, 
-                    "link": vaga.li.a["href"]}
-            dics_concursos.append(dic)
+        if vaga.li is not None:
+            if not vaga.li.a["title"].startswith("Concursos"):
+                dic = {"cargo": cargo["cargo"], 
+                        "concurso": vaga.li.a.text, 
+                        "link": vaga.li.a["href"]}
+                dics_concursos.append(dic)
     return dics_concursos
 
 def escrever_markdown(conteudo):
