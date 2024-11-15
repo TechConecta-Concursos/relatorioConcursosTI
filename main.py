@@ -85,10 +85,12 @@ def escrever_links_mais_cargo(links_duplicados):
         escrever_unica_quebra()
 
 def escrever_relatorio_pdf():
-    md2pdf(pdf_file_path=nome_arquivo_pdf, md_file_path=nome_arquivo_md, css_file_path=folha_estilos)
+    md2pdf(pdf_file_path=nome_arquivo_pdf, md_file_path=nome_arquivo_md, 
+           css_file_path=folha_estilos)
 
 def escrever_cabecalho():
-    escrever_markdown(f"# Relatório de concursos de TI {datetime.now().strftime('%d-%m-%y')}")
+    titulo = f"# Relatório de concursos de TI {datetime.now().strftime('%d-%m-%y')}"
+    escrever_markdown(titulo)
     escrever_dupla_quebra()
 
 def inicializar_siglas_estados(info_estados_regioes):
@@ -99,7 +101,8 @@ def inicializar_siglas_estados(info_estados_regioes):
                 siglas_estados.append(info_estado["sigla"])
     return siglas_estados
 
-def separar_estados_regioes_unicos(dados_concursos,siglas_estados,info_estados_regioes,links_duplicados):
+def separar_estados_regioes_unicos(dados_concursos,siglas_estados,
+                                   info_estados_regioes,links_duplicados):
     for registro in dados_concursos:
         for dic in registro:
             info_concurso_split = dic["concurso"].split("-")
@@ -114,7 +117,8 @@ def separar_estados_regioes_unicos(dados_concursos,siglas_estados,info_estados_r
                                     estados.append(info_estado["nome"])
                                     regioes.append(info_estado["regiao"])
 
-def separar_estados_regioes_duplicados(links_duplicados,siglas_estados,info_estados_regioes):
+def separar_estados_regioes_duplicados(links_duplicados,siglas_estados,
+                                       info_estados_regioes):
     for link in links_duplicados:
         info_concurso_quebra = link.split(",;")[0]
         info_concurso_split = info_concurso_quebra.split("-")
@@ -130,14 +134,17 @@ def separar_estados_regioes_duplicados(links_duplicados,siglas_estados,info_esta
 def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados):
     # https://servicodados.ibge.gov.br/api/v1/localidades/estados
     siglas_estados = inicializar_siglas_estados(info_estados_regioes)
-    separar_estados_regioes_unicos(dados_concursos,siglas_estados,info_estados_regioes,links_duplicados)
-    separar_estados_regioes_duplicados(links_duplicados,siglas_estados,info_estados_regioes)
+    separar_estados_regioes_unicos(dados_concursos,siglas_estados,
+                                   info_estados_regioes,links_duplicados)
+    separar_estados_regioes_duplicados(links_duplicados,siglas_estados,
+                                       info_estados_regioes)
 
 def escrever_estatistica_contador(contador,total_concursos):
     contador_sorted = sorted(contador.items(), key=lambda item:item[0])
     contador_sorted = dict(contador_sorted)
     for chave,freq in contador_sorted.items():
-        escrever_markdown(f"{chave} - {freq} concursos ({(freq/total_concursos)*100:.1f}%)")
+        estatisticas = f"{chave} - {freq} concursos ({(freq/total_concursos)*100:.1f}%)"
+        escrever_markdown(estatisticas)
         escrever_unica_quebra()
 
 def escrever_estatisticas(contador_estados,contador_regioes,total_concursos):
@@ -152,6 +159,16 @@ def escrever_estatisticas(contador_estados,contador_regioes,total_concursos):
     escrever_unica_quebra()
     escrever_estatistica_contador(contador_regioes,total_concursos)
 
+def escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
+                          contador_regioes,total_concursos):
+    # Escrevendo cabeçalho
+    escrever_cabecalho()
+    # Escrevendo maior parte dos links (relatório md)
+    escrever_links_unicos(dados_concursos,links_duplicados)
+    # Escrevendo links que estavam duplicados (relatório md)
+    escrever_links_mais_cargo(links_duplicados)
+    escrever_estatisticas(contador_estados,contador_regioes,total_concursos)
+
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
     # Lendo os dados iniciais sobre cargos e links
@@ -164,19 +181,14 @@ if __name__ == '__main__':
     dados_concursos = extrair_dados(links_concursos)
     # Separando duplicatas
     links_duplicados = separar_links_duplicados(dados_concursos)
-    # Escrevendo cabeçalho
-    escrever_cabecalho()
-    # Escrevendo maior parte dos links (relatório md)
-    escrever_links_unicos(dados_concursos,links_duplicados)
-    # Escrevendo links que estavam duplicados (relatório md)
-    escrever_links_mais_cargo(links_duplicados)
     # Separando estados e regiões dos concursos
     separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados)
     contador_estados = Counter(estados)
     contador_regioes = Counter(regioes)
-    # Escrevendo estatísticas
     total_concursos = sum(contador_estados.values())
-    escrever_estatisticas(contador_estados,contador_regioes,total_concursos)
+    # Escrevendo o relatório em md
+    escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
+                          contador_regioes,total_concursos)
     # Escrevendo o relatório em pdf
     escrever_relatorio_pdf()
     # Desempenho do script
