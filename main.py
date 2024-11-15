@@ -133,11 +133,11 @@ def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicado
     separar_estados_regioes_unicos(dados_concursos,siglas_estados,info_estados_regioes,links_duplicados)
     separar_estados_regioes_duplicados(links_duplicados,siglas_estados,info_estados_regioes)
 
-def escrever_estatistica_contador(contador):
+def escrever_estatistica_contador(contador,total_concursos):
     contador_sorted = sorted(contador.items(), key=lambda item:item[0])
     contador_sorted = dict(contador_sorted)
     for chave,freq in contador_sorted.items():
-        escrever_markdown(f"{chave} - {freq} concursos")
+        escrever_markdown(f"{chave} - {freq} concursos ({(freq/total_concursos)*100:.1f}%)")
         escrever_unica_quebra()
 
 def escrever_estatisticas(contador_estados,contador_regioes,total_concursos):
@@ -147,10 +147,10 @@ def escrever_estatisticas(contador_estados,contador_regioes,total_concursos):
     escrever_unica_quebra()
     escrever_markdown("## Concursos por estado")
     escrever_unica_quebra()
-    escrever_estatistica_contador(contador_estados)
+    escrever_estatistica_contador(contador_estados,total_concursos)
     escrever_markdown("## Concursos por região")
     escrever_unica_quebra()
-    escrever_estatistica_contador(contador_regioes)
+    escrever_estatistica_contador(contador_regioes,total_concursos)
 
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
