@@ -15,7 +15,6 @@ nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}
 folha_estilos = "style.css"
 estados = []
 regioes = []
-contador_estados = Counter()
 
 def scrapy_link(cargo,link):
     doc_html = requests.get(link).content
@@ -167,6 +166,7 @@ def escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
     escrever_links_unicos(dados_concursos,links_duplicados)
     # Escrevendo links que estavam duplicados (relatório md)
     escrever_links_mais_cargo(links_duplicados)
+    # Escrevendo estatísticas
     escrever_estatisticas(contador_estados,contador_regioes,total_concursos)
 
 if __name__ == '__main__':
