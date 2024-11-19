@@ -6,12 +6,14 @@ from md2pdf.core import md2pdf
 from collections import Counter
 from datetime import datetime
 from time import perf_counter
+from markdown import markdown
 
 arquivo_dados = "links_pci.json"
 arquivo_estados_regioes = "estados_regioes.json"
 titulos_cargos = set()
 nome_arquivo_pdf = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.pdf"
 nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.md"
+nome_arquivo_html = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.html"
 folha_estilos = "style.css"
 estados = []
 regioes = []
@@ -169,6 +171,20 @@ def escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
     # Escrevendo estatísticas
     escrever_estatisticas(contador_estados,contador_regioes,total_concursos)
 
+def escrever_relatorio_html():
+    with open(nome_arquivo_md,"r") as f:
+        conteudo_md = f.read()
+    conteudo_html = markdown(conteudo_md)
+    soup_conteudo = BeautifulSoup(conteudo_html,"lxml")
+    tag_head = soup_conteudo.new_tag("head", charset="UTF-8")
+    tag_link_css = soup_conteudo.new_tag("link",rel="stylesheet", 
+                                         type="text/css", href="style.css")
+    soup_conteudo.append(tag_head)
+    tag_head_ref = soup_conteudo.head
+    tag_head_ref.append(tag_link_css)
+    with open(nome_arquivo_html,"w") as f:
+        f.write(str(soup_conteudo))
+
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
     # Lendo os dados iniciais sobre cargos e links
@@ -191,6 +207,8 @@ if __name__ == '__main__':
                           contador_regioes,total_concursos)
     # Escrevendo o relatório em pdf
     escrever_relatorio_pdf()
+    # Escrevendo o relatório em HTML
+    escrever_relatorio_html()
     # Desempenho do script
     tempo_fim = perf_counter()
     print(f"O script rodou em {tempo_fim - tempo_inicio:.2f} segundos")
