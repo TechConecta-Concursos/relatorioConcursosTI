@@ -7,6 +7,7 @@ from collections import Counter
 from datetime import datetime
 from time import perf_counter
 from markdown import markdown
+from concurso_area_nlp import ConcursoAreaClassificador
 
 arquivo_dados = "links_pci.json"
 arquivo_estados_regioes = "estados_regioes.json"
@@ -160,8 +161,23 @@ def escrever_estatisticas(contador_estados,contador_regioes,total_concursos):
     escrever_unica_quebra()
     escrever_estatistica_contador(contador_regioes,total_concursos)
 
+def escrever_estatisticas(contador_estados,contador_regioes,contador_areas,total_concursos):
+    escrever_markdown("## Estatísticas")
+    escrever_dupla_quebra()
+    escrever_markdown(f"Total de concursos disponíveis: {total_concursos}")
+    escrever_unica_quebra()
+    escrever_markdown("## Concursos por estado")
+    escrever_unica_quebra()
+    escrever_estatistica_contador(contador_estados,total_concursos)
+    escrever_markdown("## Concursos por região")
+    escrever_unica_quebra()
+    escrever_estatistica_contador(contador_regioes,total_concursos)
+    escrever_markdown("## Concursos por área de atuação")
+    escrever_unica_quebra()
+    escrever_estatistica_contador(contador_areas,total_concursos)
+
 def escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
-                          contador_regioes,total_concursos):
+                          contador_regioes,contador_areas,total_concursos):
     # Escrevendo cabeçalho
     escrever_cabecalho()
     # Escrevendo maior parte dos links (relatório md)
@@ -169,7 +185,7 @@ def escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
     # Escrevendo links que estavam duplicados (relatório md)
     escrever_links_mais_cargo(links_duplicados)
     # Escrevendo estatísticas
-    escrever_estatisticas(contador_estados,contador_regioes,total_concursos)
+    escrever_estatisticas(contador_estados,contador_regioes,contador_areas,total_concursos)
 
 def escrever_relatorio_html():
     with open(nome_arquivo_md,"r") as f:
@@ -185,6 +201,15 @@ def escrever_relatorio_html():
     with open(nome_arquivo_html,"w") as f:
         f.write(str(soup_conteudo))
 
+def retornar_areas_concursos(dados_concursos):
+    classificacoes = []
+    classificador = ConcursoAreaClassificador()
+    for registro in dados_concursos:
+        for dic in registro:
+            classificacao = classificador.classificar(dic["concurso"])
+            classificacoes.append(classificacao)
+    return classificacoes
+
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
     # Lendo os dados iniciais sobre cargos e links
@@ -199,12 +224,14 @@ if __name__ == '__main__':
     links_duplicados = separar_links_duplicados(dados_concursos)
     # Separando estados e regiões dos concursos
     separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados)
+    areas = retornar_areas_concursos(dados_concursos)
     contador_estados = Counter(estados)
     contador_regioes = Counter(regioes)
+    contador_areas = Counter(areas)
     total_concursos = sum(contador_estados.values())
     # Escrevendo o relatório em md
     escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
-                          contador_regioes,total_concursos)
+                          contador_regioes,contador_areas,total_concursos)
     # Escrevendo o relatório em pdf
     escrever_relatorio_pdf()
     # Escrevendo o relatório em HTML
@@ -212,5 +239,4 @@ if __name__ == '__main__':
     # Desempenho do script
     tempo_fim = perf_counter()
     print(f"O script rodou em {tempo_fim - tempo_inicio:.2f} segundos")
-
-    # Pegar prazo final de inscrição
+    
