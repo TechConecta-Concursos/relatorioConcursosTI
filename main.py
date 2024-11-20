@@ -201,13 +201,18 @@ def escrever_relatorio_html():
     with open(nome_arquivo_html,"w") as f:
         f.write(str(soup_conteudo))
 
-def retornar_areas_concursos(dados_concursos):
+def retornar_areas_concursos(dados_concursos,links_duplicados):
     classificacoes = []
     classificador = ConcursoAreaClassificador()
+    for link in links_duplicados:
+        classificacao = classificador.classificar(link)
+        classificacoes.append(classificacao)
     for registro in dados_concursos:
         for dic in registro:
-            classificacao = classificador.classificar(dic["concurso"])
-            classificacoes.append(classificacao)
+            combinacao_concurso_link = f"{dic['concurso']},;{dic['link']}"
+            if combinacao_concurso_link not in links_duplicados:
+                classificacao = classificador.classificar(dic["concurso"])
+                classificacoes.append(classificacao)
     return classificacoes
 
 if __name__ == '__main__':
@@ -224,7 +229,7 @@ if __name__ == '__main__':
     links_duplicados = separar_links_duplicados(dados_concursos)
     # Separando estados e regiões dos concursos
     separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados)
-    areas = retornar_areas_concursos(dados_concursos)
+    areas = retornar_areas_concursos(dados_concursos,links_duplicados)
     contador_estados = Counter(estados)
     contador_regioes = Counter(regioes)
     contador_areas = Counter(areas)
