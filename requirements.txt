@@ -2,3 +2,4 @@ beautifulsoup4
 requests
 lxml
 md2pdf
+Markdown
