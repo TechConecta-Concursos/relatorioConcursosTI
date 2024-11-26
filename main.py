@@ -16,21 +16,41 @@ nome_arquivo_pdf = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')
 nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.md"
 nome_arquivo_html = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.html"
 folha_estilos = "style.css"
+concursos_set = set()
 estados = []
 regioes = []
 
-def scrapy_link(cargo,link):
+def scrapy_link(link):
     doc_html = requests.get(link).content
     soup_html = BeautifulSoup(doc_html, 'lxml')
-    vagas_html = soup_html.find_all("ul", class_="link-d")
+    vagas_html = soup_html.find_all("ul",{'class':['link-d', 'link-i']})
     dics_concursos = []
+    info_concurso_skipped = False
+    info_cargo_add = False
+    dic_concurso = dict(cargo="",concurso="",link="")
     for vaga in vagas_html:
-        if vaga.li is not None:
-            if not vaga.li.a["title"].startswith("Concursos"):
-                dic = {"cargo": cargo["cargo"], 
-                        "concurso": vaga.li.a.text, 
-                        "link": vaga.li.a["href"]}
-                dics_concursos.append(dic)
+        if vaga["class"][0] == "link-d":
+            if vaga.li is not None:
+                if not vaga.li.a["title"].startswith("Concursos"):
+                    dic_concurso["concurso"] = vaga.li.a.text
+                    dic_concurso["link"] = vaga.li.a["href"]
+                    info_concurso_skipped = False
+            else:
+                info_concurso_skipped = True
+        elif vaga["class"][0] == "link-i":
+            if not info_concurso_skipped and not info_cargo_add:
+                cargo = (vaga.li.a.text).split(" ")[0].capitalize()
+                if "-" in cargo:
+                    cargo = cargo.split("-")[0]
+                dic_concurso["cargo"] = cargo
+                info_cargo_add = True
+        if info_cargo_add:
+            combinacao_concurso = f"{dic_concurso['cargo']},;{dic_concurso['concurso']},;{dic_concurso['link']}"
+            copy_concurso = dic_concurso.copy()
+            if combinacao_concurso not in concursos_set:
+                dics_concursos.append(copy_concurso)
+                concursos_set.add(combinacao_concurso)
+            info_cargo_add = False
     return dics_concursos
 
 def escrever_markdown(conteudo):
@@ -52,7 +72,7 @@ def extrair_dados(links_concursos):
     dados_concursos = []
     for cargo in links_concursos:
         for link in cargo["links"]:
-            dic = scrapy_link(cargo,link)
+            dic = scrapy_link(link)
             dados_concursos.append(dic)
     return dados_concursos
     
