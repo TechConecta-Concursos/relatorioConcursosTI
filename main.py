@@ -235,6 +235,23 @@ def retornar_areas_concursos(dados_concursos,links_duplicados):
                 classificacoes.append(classificacao)
     return classificacoes
 
+def ordenar_concursos(dados_concursos):
+    dados_concursos_ordenado = []
+    map_cargo_lista = {
+        "Analista": list(),
+        "Professor": list(),
+        "Técnico": list()
+    }
+    for registro in dados_concursos:
+        for dic in registro:
+            map_cargo_lista[dic["cargo"]].append(dic)
+    dados_concursos_ordenado = [map_cargo_lista["Analista"],
+                                map_cargo_lista["Professor"],
+                                map_cargo_lista["Técnico"]]
+    for registro in dados_concursos_ordenado:
+        registro.sort(key=lambda concurso: concurso["concurso"])
+    return dados_concursos_ordenado
+
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
     # Lendo os dados iniciais sobre cargos e links
@@ -245,6 +262,8 @@ if __name__ == '__main__':
         info_estados_regioes = json.load(f)
     # Extraindo os dados
     dados_concursos = extrair_dados(links_concursos)
+    # Ordenando os dados por cargo
+    dados_concursos = ordenar_concursos(dados_concursos)
     # Separando duplicatas
     links_duplicados = separar_links_duplicados(dados_concursos)
     # Separando estados e regiões dos concursos
