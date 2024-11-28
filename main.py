@@ -90,13 +90,13 @@ def escrever_links_unicos(dados_concursos, links_duplicados):
     for registro in dados_concursos:
         for dic in registro:
             combinacao_concurso_link = f"{dic['concurso']},;{dic['link']}"
-            if dic["cargo"] not in titulos_cargos:
+            if dic["cargo"] in titulos_cargos:
                 escrever_markdown(f"## {dic['cargo']}")
                 escrever_unica_quebra()
+                titulos_cargos.remove(dic["cargo"])
             if combinacao_concurso_link not in links_duplicados:
                 escrever_markdown(f"[{dic['concurso']}]({dic['link']})")
                 escrever_unica_quebra()
-            titulos_cargos.add(dic["cargo"])
 
 def escrever_links_mais_cargo(links_duplicados):
     escrever_markdown("## Vários cargos")
@@ -224,20 +224,21 @@ def retornar_areas_concursos(dados_concursos,links_duplicados):
 
 def ordenar_concursos(dados_concursos):
     dados_concursos_ordenado = []
-    map_cargo_lista = {
-        "Analista": list(),
-        "Professor": list(),
-        "Técnico": list()
-    }
+    map_cargo_lista = dict()
+    for titulo_cargo in titulos_cargos:
+        map_cargo_lista[titulo_cargo] = list()
     for registro in dados_concursos:
         for dic in registro:
             map_cargo_lista[dic["cargo"]].append(dic)
-    dados_concursos_ordenado = [map_cargo_lista["Analista"],
-                                map_cargo_lista["Professor"],
-                                map_cargo_lista["Técnico"]]
+    dados_concursos_ordenado = [map_cargo_lista[chave] for chave in map_cargo_lista]
     for registro in dados_concursos_ordenado:
         registro.sort(key=lambda concurso: concurso["concurso"])
     return dados_concursos_ordenado
+
+def gerar_titulos_cargos_unicos(dados_concursos):
+    for registro in dados_concursos:
+        for dic in  registro:
+            titulos_cargos.add(dic["cargo"])
 
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
@@ -249,6 +250,8 @@ if __name__ == '__main__':
         info_estados_regioes = json.load(f)
     # Extraindo os dados
     dados_concursos = extrair_dados(links_concursos)
+    # Gerar títulos de cargos únicos
+    gerar_titulos_cargos_unicos(dados_concursos)
     # Ordenando os dados por cargo
     dados_concursos = ordenar_concursos(dados_concursos)
     # Separando duplicatas
