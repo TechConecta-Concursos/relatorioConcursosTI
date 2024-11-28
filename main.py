@@ -169,18 +169,6 @@ def escrever_estatistica_contador(contador,total_concursos):
         escrever_markdown(estatisticas)
         escrever_unica_quebra()
 
-def escrever_estatisticas(contador_estados,contador_regioes,total_concursos):
-    escrever_markdown("## Estatísticas")
-    escrever_dupla_quebra()
-    escrever_markdown(f"Total de concursos disponíveis: {total_concursos}")
-    escrever_unica_quebra()
-    escrever_markdown("## Concursos por estado")
-    escrever_unica_quebra()
-    escrever_estatistica_contador(contador_estados,total_concursos)
-    escrever_markdown("## Concursos por região")
-    escrever_unica_quebra()
-    escrever_estatistica_contador(contador_regioes,total_concursos)
-
 def escrever_estatisticas(contador_estados,contador_regioes,contador_areas,total_concursos):
     escrever_markdown("## Estatísticas")
     escrever_dupla_quebra()
