@@ -169,23 +169,22 @@ def escrever_estatistica_contador(contador,total_concursos):
         escrever_markdown(estatisticas)
         escrever_unica_quebra()
 
-def escrever_estatisticas(contador_estados,contador_regioes,contador_areas,total_concursos):
+def escrever_estatisticas(contadores,total_concursos):
     escrever_markdown("## Estatísticas")
     escrever_dupla_quebra()
     escrever_markdown(f"Total de concursos disponíveis: {total_concursos}")
     escrever_unica_quebra()
     escrever_markdown("## Concursos por estado")
     escrever_unica_quebra()
-    escrever_estatistica_contador(contador_estados,total_concursos)
+    escrever_estatistica_contador(contadores["estados"],total_concursos)
     escrever_markdown("## Concursos por região")
     escrever_unica_quebra()
-    escrever_estatistica_contador(contador_regioes,total_concursos)
+    escrever_estatistica_contador(contadores["regioes"],total_concursos)
     escrever_markdown("## Concursos por área de atuação")
     escrever_unica_quebra()
-    escrever_estatistica_contador(contador_areas,total_concursos)
+    escrever_estatistica_contador(contadores["areas"],total_concursos)
 
-def escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
-                          contador_regioes,contador_areas,total_concursos):
+def escrever_relatorio_md(dados_concursos,links_duplicados,contadores,total_concursos):
     # Escrevendo cabeçalho
     escrever_cabecalho()
     # Escrevendo maior parte dos links (relatório md)
@@ -193,7 +192,7 @@ def escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
     # Escrevendo links que estavam duplicados (relatório md)
     escrever_links_mais_cargo(links_duplicados)
     # Escrevendo estatísticas
-    escrever_estatisticas(contador_estados,contador_regioes,contador_areas,total_concursos)
+    escrever_estatisticas(contadores,total_concursos)
 
 def escrever_relatorio_html():
     with open(nome_arquivo_md,"r") as f:
@@ -260,10 +259,14 @@ if __name__ == '__main__':
     contador_estados = Counter(estados)
     contador_regioes = Counter(regioes)
     contador_areas = Counter(areas)
+    contadores = {
+        "estados": contador_estados,
+        "regioes": contador_regioes,
+        "areas": contador_areas
+    }
     total_concursos = sum(contador_estados.values())
     # Escrevendo o relatório em md
-    escrever_relatorio_md(dados_concursos,links_duplicados,contador_estados,
-                          contador_regioes,contador_areas,total_concursos)
+    escrever_relatorio_md(dados_concursos,links_duplicados,contadores,total_concursos)
     # Escrevendo o relatório em pdf
     escrever_relatorio_pdf()
     # Escrevendo o relatório em HTML
