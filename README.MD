@@ -4,6 +4,11 @@
 
 ## 📖 Descrição
 
+![Print 1 - Relatório](print1-relatorio.jpg)
+
+![Print 2 - Relatório](print2-relatorio.jpg)
+
+
 Esse projeto diz respeito a uma aplicação capaz de extrair informações de concursos na área de tecnologia da informação (TI) ocorrendo nesse momento do site [PCI Concursos](https://www.pciconcursos.com.br/). Além dos links e nomes dos concursos, o relatório disponibiliza estatísticas que ajudam a ter uma visão abrangente sobre o cenário de concursos da área.
 
 ## 🛠️ Funcionalidades
