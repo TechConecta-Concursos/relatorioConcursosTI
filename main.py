@@ -99,12 +99,13 @@ def escrever_links_unicos(dados_concursos, links_duplicados):
                 escrever_unica_quebra()
 
 def escrever_links_mais_cargo(links_duplicados):
-    escrever_markdown("## Vários cargos")
-    escrever_unica_quebra()
-    for link in links_duplicados:
-        split_dados = link.split(",;")
-        escrever_markdown(f"[{split_dados[0]}]({split_dados[1]})")
+    if len(links_duplicados) > 0:
+        escrever_markdown("## Vários cargos")
         escrever_unica_quebra()
+        for link in links_duplicados:
+            split_dados = link.split(",;")
+            escrever_markdown(f"[{split_dados[0]}]({split_dados[1]})")
+            escrever_unica_quebra()
 
 def escrever_relatorio_pdf():
     md2pdf(pdf_file_path=nome_arquivo_pdf, md_file_path=nome_arquivo_md, 
