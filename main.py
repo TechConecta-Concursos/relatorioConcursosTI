@@ -230,6 +230,8 @@ def ordenar_concursos(dados_concursos):
     for registro in dados_concursos:
         for dic in registro:
             map_cargo_lista[dic["cargo"]].append(dic)
+    map_cargo_lista = sorted(map_cargo_lista.items(), key=lambda item:item[0])
+    map_cargo_lista = dict(map_cargo_lista)
     dados_concursos_ordenado = [map_cargo_lista[chave] for chave in map_cargo_lista]
     for registro in dados_concursos_ordenado:
         registro.sort(key=lambda concurso: concurso["concurso"])
