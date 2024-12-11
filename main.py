@@ -12,9 +12,11 @@ from concurso_area_nlp import ConcursoAreaClassificador
 arquivo_dados = "data/links_pci.json"
 arquivo_estados_regioes = "data/estados_regioes.json"
 titulos_cargos = set()
-nome_arquivo_pdf = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.pdf"
-nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.md"
-nome_arquivo_html = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.html"
+data_hoje = datetime.now().strftime('%d-%m-%y')
+nome_base = f"relatorio_concursos_ti_{data_hoje}"
+nome_arquivo_pdf = f"{nome_base}.pdf"
+nome_arquivo_md = f"{nome_base}.md"
+nome_arquivo_html = f"{nome_base}.html"
 folha_estilos = "css/style.css"
 concursos_set = set()
 estados = []
@@ -112,7 +114,7 @@ def escrever_relatorio_pdf():
            css_file_path=folha_estilos)
 
 def escrever_cabecalho():
-    titulo = f"# Relatório de concursos de TI {datetime.now().strftime('%d-%m-%y')}"
+    titulo = f"# Relatório de concursos de TI {data_hoje}"
     escrever_markdown(titulo)
     escrever_dupla_quebra()
 
