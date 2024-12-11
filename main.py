@@ -9,13 +9,13 @@ from time import perf_counter
 from markdown import markdown
 from concurso_area_nlp import ConcursoAreaClassificador
 
-arquivo_dados = "links_pci.json"
-arquivo_estados_regioes = "estados_regioes.json"
+arquivo_dados = "data/links_pci.json"
+arquivo_estados_regioes = "data/estados_regioes.json"
 titulos_cargos = set()
 nome_arquivo_pdf = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.pdf"
 nome_arquivo_md = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.md"
 nome_arquivo_html = f"relatorio_concursos_ti_{datetime.now().strftime('%d-%m-%y')}.html"
-folha_estilos = "style.css"
+folha_estilos = "css/style.css"
 concursos_set = set()
 estados = []
 regioes = []
