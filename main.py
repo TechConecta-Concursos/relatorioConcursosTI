@@ -177,6 +177,9 @@ def escrever_estatisticas(contadores,total_concursos):
     escrever_dupla_quebra()
     escrever_markdown(f"Total de concursos disponíveis: {total_concursos}")
     escrever_unica_quebra()
+    escrever_markdown("## Concursos por cargo")
+    escrever_unica_quebra()
+    escrever_estatistica_contador(contadores["cargos"],total_concursos)
     escrever_markdown("## Concursos por estado")
     escrever_unica_quebra()
     escrever_estatistica_contador(contadores["estados"],total_concursos)
@@ -245,6 +248,17 @@ def gerar_titulos_cargos_unicos(dados_concursos):
         for dic in  registro:
             titulos_cargos.add(dic["cargo"])
 
+def retornar_concursos_cargo(dados_concursos,links_duplicados):
+    concursos_cargos = []
+    for _ in links_duplicados:
+        concursos_cargos.append("Vários cargos")
+    for registro in dados_concursos:
+        for dic in registro:
+            combinacao_concurso_link = f"{dic['concurso']},;{dic['link']}"
+            if combinacao_concurso_link not in links_duplicados:
+                concursos_cargos.append(dic["cargo"])
+    return concursos_cargos
+
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
     # Lendo os dados iniciais sobre cargos e links
@@ -264,13 +278,16 @@ if __name__ == '__main__':
     # Separando estados e regiões dos concursos
     separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados)
     areas = retornar_areas_concursos(dados_concursos,links_duplicados)
+    concursos_cargos = retornar_concursos_cargo(dados_concursos,links_duplicados)
     contador_estados = Counter(estados)
     contador_regioes = Counter(regioes)
     contador_areas = Counter(areas)
+    contador_cargos = Counter(concursos_cargos)
     contadores = {
         "estados": contador_estados,
         "regioes": contador_regioes,
-        "areas": contador_areas
+        "areas": contador_areas,
+        "cargos": contador_cargos
     }
     total_concursos = sum(contador_estados.values())
     # Escrevendo o relatório em md
