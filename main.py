@@ -289,7 +289,7 @@ if __name__ == '__main__':
         "areas": contador_areas,
         "cargos": contador_cargos
     }
-    total_concursos = sum(contador_estados.values())
+    total_concursos = sum(contador_cargos.values())
     # Escrevendo o relatório em md
     escrever_relatorio_md(dados_concursos,links_duplicados,contadores,total_concursos)
     # Escrevendo o relatório em pdf
