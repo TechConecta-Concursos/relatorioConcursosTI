@@ -207,7 +207,7 @@ def escrever_relatorio_html():
     soup_conteudo = BeautifulSoup(conteudo_html,"lxml")
     tag_head = soup_conteudo.new_tag("head", charset="UTF-8")
     tag_link_css = soup_conteudo.new_tag("link",rel="stylesheet", 
-                                         type="text/css", href="style.css")
+                                         type="text/css", href=folha_estilos)
     soup_conteudo.append(tag_head)
     tag_head_ref = soup_conteudo.head
     tag_head_ref.append(tag_link_css)
