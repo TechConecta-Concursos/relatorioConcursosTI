@@ -74,19 +74,14 @@ def retornar_concursos_cargo(dados_concursos,links_duplicados):
 
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
-    # Lendo os dados iniciais sobre cargos e links
     with open(const.ARQUIVO_DADOS,"r") as f:
         links_concursos = json.load(f)
-    # Lendo os dados dos estados
     with open(const.ARQUIVO_ESTADOS_REGIOES, "r") as f:
         info_estados_regioes = json.load(f)
     scraper = Scraper(links_concursos)
     dados_concursos = scraper.extrair_dados(concursos_set)
-    # Gerar títulos de cargos únicos
     gerar_titulos_cargos_unicos(dados_concursos)
-    # Ordenando os dados por cargo
     dados_concursos = ordenar_concursos(dados_concursos)
-    # Separando duplicatas
     links_duplicados = separar_links_duplicados(dados_concursos)
     parser_estados_regioes = ParserEstadosRegioes(info_estados_regioes,
                                                   dados_concursos,links_duplicados)
@@ -108,7 +103,6 @@ if __name__ == '__main__':
     relatorio.escrever_md(titulos_cargos)
     relatorio.escrever_pdf()
     relatorio.escrever_html()
-    # Desempenho do script
     tempo_fim = perf_counter()
     print(f"O script rodou em {tempo_fim - tempo_inicio:.2f} segundos")
     
