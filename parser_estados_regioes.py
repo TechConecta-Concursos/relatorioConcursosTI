@@ -5,12 +5,12 @@ class ParserEstadosRegioes: # https://servicodados.ibge.gov.br/api/v1/localidade
 
     def __init__(self,info_estados_regioes,dados_concursos,links_duplicados):
         self.__info_estados_regioes = info_estados_regioes
-        self.__siglas_estados = self.inicializar_siglas_estados()
+        self.__siglas_estados = self.__inicializar_siglas_estados()
         self.__dados_concursos = dados_concursos
         self.__links_duplicados = links_duplicados
 
 
-    def inicializar_siglas_estados(self):
+    def __inicializar_siglas_estados(self):
         siglas_estados = []
         for info_estado in self.__info_estados_regioes:
             for chave in info_estado:
@@ -19,7 +19,7 @@ class ParserEstadosRegioes: # https://servicodados.ibge.gov.br/api/v1/localidade
         return siglas_estados
     
     
-    def separar_estados_regioes_unicos(self):
+    def __separar_estados_regioes_unicos(self):
         for registro in self.__dados_concursos:
             for dic in registro:
                 info_concurso_split = dic["concurso"].split("-")
@@ -35,7 +35,7 @@ class ParserEstadosRegioes: # https://servicodados.ibge.gov.br/api/v1/localidade
                                         self.__regioes.append(info_estado["regiao"])
 
 
-    def separar_estados_regioes_duplicados(self):
+    def __separar_estados_regioes_duplicados(self):
         for link in self.__links_duplicados:
             info_concurso_quebra = link.split(",;")[0]
             info_concurso_split = info_concurso_quebra.split("-")
@@ -50,6 +50,6 @@ class ParserEstadosRegioes: # https://servicodados.ibge.gov.br/api/v1/localidade
     
 
     def separar_estados_regioes(self):
-        self.separar_estados_regioes_unicos()
-        self.separar_estados_regioes_duplicados()
+        self.__separar_estados_regioes_unicos()
+        self.__separar_estados_regioes_duplicados()
         return self.__estados.copy(), self.__regioes.copy()
