@@ -1,5 +1,6 @@
-beautifulsoup4
-requests
-lxml
-md2pdf
-Markdown
+beautifulsoup4==4.10.0
+requests==2.32.3
+lxml==4.9.3
+md2pdf==1.0.1
+Markdown==3.7
+
