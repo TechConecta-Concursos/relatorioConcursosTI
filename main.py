@@ -1,26 +1,18 @@
 from bs4 import BeautifulSoup
 import json
 import requests
-from glob import glob
-from md2pdf.core import md2pdf
 from collections import Counter
-from datetime import datetime
 from time import perf_counter
-from markdown import markdown
 from concurso_area_nlp import ConcursoAreaClassificador
+import const
+from relatorio import Relatorio
 
-arquivo_dados = "data/links_pci.json"
-arquivo_estados_regioes = "data/estados_regioes.json"
+
 titulos_cargos = set()
-data_hoje = datetime.now().strftime('%d-%m-%y')
-nome_base = f"relatorio_concursos_ti_{data_hoje}"
-nome_arquivo_pdf = f"{nome_base}.pdf"
-nome_arquivo_md = f"{nome_base}.md"
-nome_arquivo_html = f"{nome_base}.html"
-folha_estilos = "css/style.css"
 concursos_set = set()
 estados = []
 regioes = []
+
 
 def scrapy_link(link):
     doc_html = requests.get(link).content
@@ -55,20 +47,6 @@ def scrapy_link(link):
             info_cargo_add = False
     return dics_concursos
 
-def escrever_markdown(conteudo):
-    if len(glob(nome_arquivo_md)) > 0:
-        with open(nome_arquivo_md, "a") as f:
-            f.write(conteudo)
-    else:
-        with open(nome_arquivo_md, "w") as f:
-            f.write(conteudo)
-
-def escrever_dupla_quebra():
-    escrever_markdown("\n \n")
-    escrever_markdown("\n \n")
-
-def escrever_unica_quebra():
-     escrever_markdown("\n \n")
 
 def extrair_dados(links_concursos):
     dados_concursos = []
@@ -78,6 +56,7 @@ def extrair_dados(links_concursos):
             dados_concursos.append(dic)
     return dados_concursos
     
+
 def separar_links_duplicados(dados_concursos):
     lista_concurso_link = []
     for registro in dados_concursos:
@@ -88,35 +67,6 @@ def separar_links_duplicados(dados_concursos):
                         if valor > 1]
     return links_duplicados
 
-def escrever_links_unicos(dados_concursos, links_duplicados):
-    for registro in dados_concursos:
-        for dic in registro:
-            combinacao_concurso_link = f"{dic['concurso']},;{dic['link']}"
-            if dic["cargo"] in titulos_cargos:
-                escrever_markdown(f"## {dic['cargo']}")
-                escrever_unica_quebra()
-                titulos_cargos.remove(dic["cargo"])
-            if combinacao_concurso_link not in links_duplicados:
-                escrever_markdown(f"[{dic['concurso']}]({dic['link']})")
-                escrever_unica_quebra()
-
-def escrever_links_mais_cargo(links_duplicados):
-    if len(links_duplicados) > 0:
-        escrever_markdown("## Vários cargos")
-        escrever_unica_quebra()
-        for link in links_duplicados:
-            split_dados = link.split(",;")
-            escrever_markdown(f"[{split_dados[0]}]({split_dados[1]})")
-            escrever_unica_quebra()
-
-def escrever_relatorio_pdf():
-    md2pdf(pdf_file_path=nome_arquivo_pdf, md_file_path=nome_arquivo_md, 
-           css_file_path=folha_estilos)
-
-def escrever_cabecalho():
-    titulo = f"# Relatório de concursos de TI {data_hoje}"
-    escrever_markdown(titulo)
-    escrever_dupla_quebra()
 
 def inicializar_siglas_estados(info_estados_regioes):
     siglas_estados = []
@@ -125,6 +75,7 @@ def inicializar_siglas_estados(info_estados_regioes):
             if chave == "sigla":
                 siglas_estados.append(info_estado["sigla"])
     return siglas_estados
+
 
 def separar_estados_regioes_unicos(dados_concursos,siglas_estados,
                                    info_estados_regioes,links_duplicados):
@@ -142,6 +93,7 @@ def separar_estados_regioes_unicos(dados_concursos,siglas_estados,
                                     estados.append(info_estado["nome"])
                                     regioes.append(info_estado["regiao"])
 
+
 def separar_estados_regioes_duplicados(links_duplicados,siglas_estados,
                                        info_estados_regioes):
     for link in links_duplicados:
@@ -156,6 +108,7 @@ def separar_estados_regioes_duplicados(links_duplicados,siglas_estados,
                             estados.append(info_estado["nome"])
                             regioes.append(info_estado["regiao"])
 
+
 def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicados):
     # https://servicodados.ibge.gov.br/api/v1/localidades/estados
     siglas_estados = inicializar_siglas_estados(info_estados_regioes)
@@ -164,55 +117,6 @@ def separar_estados_regioes(dados_concursos,info_estados_regioes,links_duplicado
     separar_estados_regioes_duplicados(links_duplicados,siglas_estados,
                                        info_estados_regioes)
 
-def escrever_estatistica_contador(contador,total_concursos):
-    contador_sorted = sorted(contador.items(), key=lambda item:item[0])
-    contador_sorted = dict(contador_sorted)
-    for chave,freq in contador_sorted.items():
-        estatisticas = f"{chave} - {freq} concursos ({(freq/total_concursos)*100:.1f}%)"
-        escrever_markdown(estatisticas)
-        escrever_unica_quebra()
-
-def escrever_estatisticas(contadores,total_concursos):
-    escrever_markdown("## Estatísticas")
-    escrever_dupla_quebra()
-    escrever_markdown(f"Total de concursos disponíveis: {total_concursos}")
-    escrever_unica_quebra()
-    escrever_markdown("## Concursos por cargo")
-    escrever_unica_quebra()
-    escrever_estatistica_contador(contadores["cargos"],total_concursos)
-    escrever_markdown("## Concursos por estado")
-    escrever_unica_quebra()
-    escrever_estatistica_contador(contadores["estados"],total_concursos)
-    escrever_markdown("## Concursos por região")
-    escrever_unica_quebra()
-    escrever_estatistica_contador(contadores["regioes"],total_concursos)
-    escrever_markdown("## Concursos por área de atuação")
-    escrever_unica_quebra()
-    escrever_estatistica_contador(contadores["areas"],total_concursos)
-
-def escrever_relatorio_md(dados_concursos,links_duplicados,contadores,total_concursos):
-    # Escrevendo cabeçalho
-    escrever_cabecalho()
-    # Escrevendo maior parte dos links (relatório md)
-    escrever_links_unicos(dados_concursos,links_duplicados)
-    # Escrevendo links que estavam duplicados (relatório md)
-    escrever_links_mais_cargo(links_duplicados)
-    # Escrevendo estatísticas
-    escrever_estatisticas(contadores,total_concursos)
-
-def escrever_relatorio_html():
-    with open(nome_arquivo_md,"r") as f:
-        conteudo_md = f.read()
-    conteudo_html = markdown(conteudo_md)
-    soup_conteudo = BeautifulSoup(conteudo_html,"lxml")
-    tag_head = soup_conteudo.new_tag("head", charset="UTF-8")
-    tag_link_css = soup_conteudo.new_tag("link",rel="stylesheet", 
-                                         type="text/css", href=folha_estilos)
-    soup_conteudo.append(tag_head)
-    tag_head_ref = soup_conteudo.head
-    tag_head_ref.append(tag_link_css)
-    with open(nome_arquivo_html,"w") as f:
-        f.write(str(soup_conteudo))
 
 def retornar_areas_concursos(dados_concursos,links_duplicados):
     classificacoes = []
@@ -227,6 +131,7 @@ def retornar_areas_concursos(dados_concursos,links_duplicados):
                 classificacao = classificador.classificar(dic["concurso"])
                 classificacoes.append(classificacao)
     return classificacoes
+
 
 def ordenar_concursos(dados_concursos):
     dados_concursos_ordenado = []
@@ -243,10 +148,12 @@ def ordenar_concursos(dados_concursos):
         registro.sort(key=lambda concurso: concurso["concurso"])
     return dados_concursos_ordenado
 
+
 def gerar_titulos_cargos_unicos(dados_concursos):
     for registro in dados_concursos:
         for dic in  registro:
             titulos_cargos.add(dic["cargo"])
+
 
 def retornar_concursos_cargo(dados_concursos,links_duplicados):
     concursos_cargos = []
@@ -259,13 +166,14 @@ def retornar_concursos_cargo(dados_concursos,links_duplicados):
                 concursos_cargos.append(dic["cargo"])
     return concursos_cargos
 
+
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
     # Lendo os dados iniciais sobre cargos e links
-    with open(arquivo_dados,"r") as f:
+    with open(const.ARQUIVO_DADOS,"r") as f:
         links_concursos = json.load(f)
     # Lendo os dados dos estados
-    with open(arquivo_estados_regioes, "r") as f:
+    with open(const.ARQUIVO_ESTADOS_REGIOES, "r") as f:
         info_estados_regioes = json.load(f)
     # Extraindo os dados
     dados_concursos = extrair_dados(links_concursos)
@@ -290,12 +198,10 @@ if __name__ == '__main__':
         "cargos": contador_cargos
     }
     total_concursos = sum(contador_cargos.values())
-    # Escrevendo o relatório em md
-    escrever_relatorio_md(dados_concursos,links_duplicados,contadores,total_concursos)
-    # Escrevendo o relatório em pdf
-    escrever_relatorio_pdf()
-    # Escrevendo o relatório em HTML
-    escrever_relatorio_html()
+    relatorio = Relatorio(dados_concursos,links_duplicados,contadores,total_concursos)
+    relatorio.escrever_md(titulos_cargos)
+    relatorio.escrever_pdf()
+    relatorio.escrever_html()
     # Desempenho do script
     tempo_fim = perf_counter()
     print(f"O script rodou em {tempo_fim - tempo_inicio:.2f} segundos")
