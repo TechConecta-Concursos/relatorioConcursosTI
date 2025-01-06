@@ -14,6 +14,7 @@ Esse projeto diz respeito a uma aplicação capaz de extrair informações de co
 ## 🛠️ Funcionalidades
 
 - Listagem de concursos separados por cargo (Analista, Técnico e Professor);
+- Estatísticas de concursos por cargo;
 - Estatísticas de concursos por estado;
 - Estatísticas de concursos por região;
 - Estatísticas de concursos por área de atuação.
