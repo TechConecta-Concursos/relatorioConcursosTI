@@ -21,12 +21,21 @@ class Relatorio:
 
 
     def __escrever_markdown(self,conteudo):
-        if len(glob(self.__nome_arquivo_md)) > 0:
-            with open(self.__nome_arquivo_md, "a") as f:
-                f.write(conteudo)
-        else:
-            with open(self.__nome_arquivo_md, "w") as f:
-                f.write(conteudo)
+        try:
+            if len(glob(self.__nome_arquivo_md)) > 0:
+                with open(self.__nome_arquivo_md, "a") as f:
+                    try:
+                        f.write(conteudo)
+                    except (IOError, OSError):
+                        print("Erro ao escrever no relatório markdown")
+            else:
+                with open(self.__nome_arquivo_md, "w") as f:
+                    try:
+                        f.write(conteudo)
+                    except (IOError, OSError):
+                        print("Erro ao criar o relatório markdown")
+        except Exception as e:
+            print(f"Erro ao abrir o relatório markdown {e}")
 
 
     def __escrever_dupla_quebra(self):
@@ -107,9 +116,18 @@ class Relatorio:
     
 
     def escrever_html(self):
-        with open(self.__nome_arquivo_md,"r") as f:
-            conteudo_md = f.read()
-        conteudo_html = markdown(conteudo_md)
+        try:
+            with open(self.__nome_arquivo_md,"r") as f:
+                try:
+                    conteudo_md = f.read()
+                except (IOError, OSError):
+                    print("Erro ao ler o relatório markdown para conversão")
+        except Exception as e:
+            print(f"Erro ao abrir o relatório markdown {e}")
+        try:
+            conteudo_html = markdown(conteudo_md)
+        except Exception as e:
+            print(f"Erro ao criar objeto html a partir do relatório Markdown {e}")
         soup_conteudo = BeautifulSoup(conteudo_html,"lxml")
         tag_head = soup_conteudo.new_tag("head", charset="UTF-8")
         tag_link_css = soup_conteudo.new_tag("link",rel="stylesheet", 
@@ -118,8 +136,15 @@ class Relatorio:
         tag_head_ref = soup_conteudo.head
         tag_head_ref.append(tag_link_css)
         with open(self.__nome_arquivo_html,"w") as f:
-            f.write(str(soup_conteudo))
+            try:
+                f.write(str(soup_conteudo))
+            except (IOError, OSError):
+                print("Erro ao escrever o relatório html")
+
     
     def escrever_pdf(self):
-        md2pdf(pdf_file_path=self.__nome_arquivo_pdf, md_file_path=self.__nome_arquivo_md, 
-            css_file_path=self.__folha_estilos)
+        try:
+            md2pdf(pdf_file_path=self.__nome_arquivo_pdf, md_file_path=self.__nome_arquivo_md, 
+                css_file_path=self.__folha_estilos)
+        except Exception as e:
+            print(f"Erro ao converter o relatório para PDF {e}")
