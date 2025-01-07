@@ -42,13 +42,29 @@ pip install -r requirements.txt
 
 <br>
 
-Depois de instaladas as dependências, execute o comando abaixo:
+Depois de instaladas as dependências, você poderá executar um dos comandos abaixo:
 
+***Relatório padrão (MD)***
 ```shell
 python3 main.py
 ```
 
-O comando gerará o relatório em três formatos: markdown, pdf e html. Ele conterá as informações sobre concursos de TI ocorrendo agora e estatísticas relevantes.
+***Relatório HTML***
+```shell
+python3 main.py --html
+```
+
+***Relatório PDF***
+```shell
+python3 main.py --pdf
+```
+
+***Relatório em todos os formatos possíveis (MD, HTML e PDF)***
+```shell
+python3 main.py --html --pdf
+```
+
+Independentemente do comando escolhido, sempre haverá o relatório base no formato MD. O relatório conterá as informações sobre concursos de TI ocorrendo agora e estatísticas relevantes.
 
 
 ## 🤵🤵‍♀️ Colaboradores
