@@ -6,6 +6,7 @@ import const
 from relatorio import Relatorio
 from scraper import Scraper
 from parser_estados_regioes import ParserEstadosRegioes
+import argparse
 
 
 titulos_cargos = set()
@@ -74,6 +75,13 @@ def retornar_concursos_cargo(dados_concursos,links_duplicados):
 
 if __name__ == '__main__':
     tempo_inicio = perf_counter()
+    parser = argparse.ArgumentParser(description="Gera um relatório Markdown de \
+                                     concursos de TI a partir do site PCI Concursos")
+    parser.add_argument("--html",help="Gera uma cópia do relatório em formato HTML",required=False,
+                        action='store_true')
+    parser.add_argument("--pdf", help="Gera uma cópia do relatório em formato PDF",required=False,
+                        action='store_true')
+    args = parser.parse_args()
     with open(const.ARQUIVO_DADOS,"r") as f:
         links_concursos = json.load(f)
     with open(const.ARQUIVO_ESTADOS_REGIOES, "r") as f:
@@ -101,8 +109,10 @@ if __name__ == '__main__':
     total_concursos = sum(contador_cargos.values())
     relatorio = Relatorio(dados_concursos,links_duplicados,contadores,total_concursos)
     relatorio.escrever_md(titulos_cargos)
-    relatorio.escrever_pdf()
-    relatorio.escrever_html()
+    if args.html == True:
+        relatorio.escrever_html()
+    if args.pdf == True:
+        relatorio.escrever_pdf()
     tempo_fim = perf_counter()
     print(f"O script rodou em {tempo_fim - tempo_inicio:.2f} segundos")
     
