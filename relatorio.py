@@ -57,7 +57,8 @@ class Relatorio:
         for registro in self.__dados_concursos:
             for dic in registro:
                 combinacao_concurso_link = f"{dic['concurso']},;{dic['link']}"
-                if dic["cargo"] in titulos_cargos:
+                cargos_com_links = self.__contadores["cargos"].keys()
+                if dic["cargo"] in titulos_cargos and dic["cargo"] in cargos_com_links:
                     self.__escrever_markdown(f"## {dic['cargo']}")
                     self.__escrever_unica_quebra()
                     titulos_cargos.remove(dic["cargo"])
